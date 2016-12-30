@@ -38,7 +38,7 @@ var watchCmd = &cobra.Command{
 	Use:   "watch",
 	Short: "Watch for the press of a Amazon Dash button",
 	Long: `Watch the press of a Amazon Dash button
-	
+
 	`,
 	Run: watch,
 }
@@ -64,15 +64,12 @@ func watch(cmd *cobra.Command, args []string) {
 	// Start up a goroutine to read in packet data.
 	for {
 		// Open up a pcap handle for packet reads/writes.
-		handle, err := pcap.OpenLive(iface.Name, 65536, true, pcap.BlockForever)
+		handle, err := pcap.OpenLive(iface.Name, 65536, true, 10 * time.Millisecond)
 		if err != nil {
 			panic(err)
 		}
 		watchForButton(handle, iface)
-		log.Printf("Closing")
 		handle.Close()
-		log.Printf("Sleeping")
-		time.Sleep(2 * time.Second)
 		buttonPushed()
 	}
 }
