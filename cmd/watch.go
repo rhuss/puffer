@@ -61,17 +61,19 @@ func watch(cmd *cobra.Command, args []string) {
 
 	log.Printf("Using network range %v for interface %v", addr, iface.Name)
 
-	// Open up a pcap handle for packet reads/writes.
-	handle, err := pcap.OpenLive(iface.Name, 65536, true, pcap.BlockForever)
-	if err != nil {
-		panic(err)
-	}
-	defer handle.Close()
-
 	// Start up a goroutine to read in packet data.
 	for {
-		watchForButton(handle, iface, buttonPushed)
-		time.Sleep(10 * time.Second)
+		// Open up a pcap handle for packet reads/writes.
+		handle, err := pcap.OpenLive(iface.Name, 65536, true, pcap.BlockForever)
+		if err != nil {
+			panic(err)
+		}
+		if watchForButton(handle, iface) {
+			handle.Close()
+			buttonPushed()
+		} else {
+			handle.Close()
+		}
 	}
 }
 
@@ -86,7 +88,7 @@ var lastPushed = time.Time{}
 // watchForButton watches a handle for incoming ARP responses we might care about, and prints them.
 //
 // watchForButton loops until 'stop' is closed.
-func watchForButton(handle *pcap.Handle, iface *net.Interface, callback func()) {
+func watchForButton(handle *pcap.Handle, iface *net.Interface) bool {
 	src := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
 	in := src.Packets()
 	for {
@@ -103,8 +105,7 @@ func watchForButton(handle *pcap.Handle, iface *net.Interface, callback func()) 
 					var now = time.Now()
 					if now.Sub(lastPushed).Seconds() > 5 {
 						lastPushed = now
-						go callback()
-						return
+						return true
 					}
 				}
 			}
