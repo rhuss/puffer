@@ -28,9 +28,9 @@ import (
 	"github.com/rhuss/puffer/pkg/api"
 	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-var netInterface = "en3"
 var buttonMac = "ac:63:be:fb:13:9d"
 
 // watchCmd represents the watch command
@@ -44,6 +44,11 @@ var watchCmd = &cobra.Command{
 }
 
 func watch(cmd *cobra.Command, args []string) {
+	netInterface := viper.GetString("interface")
+	if netInterface == "" {
+		netInterface = "en3"
+	}
+
 	iface, err := net.InterfaceByName(netInterface)
 	if err != nil {
 		panic(err)
@@ -64,10 +69,8 @@ func watch(cmd *cobra.Command, args []string) {
 	defer handle.Close()
 
 	// Start up a goroutine to read in packet data.
-	stop := make(chan struct{})
-	go watchForButton(handle, iface, stop, buttonPushed)
-	defer close(stop)
 	for {
+		watchForButton(handle, iface, buttonPushed)
 		time.Sleep(10 * time.Second)
 	}
 }
@@ -78,18 +81,17 @@ func buttonPushed() {
 	speak.Speak(PufferMessage(pufferData), SpeakOptions())
 }
 
+var lastPushed = time.Time{}
+
 // watchForButton watches a handle for incoming ARP responses we might care about, and prints them.
 //
 // watchForButton loops until 'stop' is closed.
-func watchForButton(handle *pcap.Handle, iface *net.Interface, stop chan struct{}, callback func()) {
+func watchForButton(handle *pcap.Handle, iface *net.Interface, callback func()) {
 	src := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
 	in := src.Packets()
-	var lastPushed = time.Time{}
 	for {
 		var packet gopacket.Packet
 		select {
-		case <-stop:
-			return
 		case packet = <-in:
 			arpLayer := packet.Layer(layers.LayerTypeARP)
 			if arpLayer == nil {
@@ -102,6 +104,7 @@ func watchForButton(handle *pcap.Handle, iface *net.Interface, stop chan struct{
 					if now.Sub(lastPushed).Seconds() > 5 {
 						lastPushed = now
 						go callback()
+						return
 					}
 				}
 			}
