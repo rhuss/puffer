@@ -64,7 +64,7 @@ func watch(cmd *cobra.Command, args []string) {
 	// Start up a goroutine to read in packet data.
 	for {
 		// Open up a pcap handle for packet reads/writes.
-		handle, err := pcap.OpenLive(iface.Name, 65536, true, 10 * time.Millisecond)
+		handle, err := pcap.OpenLive(iface.Name, 65536, true, 200 * time.Millisecond)
 		if err != nil {
 			panic(err)
 		}
@@ -99,10 +99,10 @@ func watchForButton(handle *pcap.Handle, iface *net.Interface) {
 			}
 			arp := arpLayer.(*layers.ARP)
 			if arp.Operation == layers.ARPRequest {
-				log.Printf("ARP request")
-				log.Printf("IP %v Dst %v Src %v", net.IP(arp.SourceProtAddress), net.HardwareAddr(arp.DstHwAddress), net.HardwareAddr(arp.SourceHwAddress))
+				//log.Printf("ARP request")
+				//log.Printf("IP %v Dst %v Src %v", net.IP(arp.SourceProtAddress), net.HardwareAddr(arp.DstHwAddress), net.HardwareAddr(arp.SourceHwAddress))
 				if addressEquals("00:00:00:00:00:00", arp.DstHwAddress) && addressEquals(buttonMac, arp.SourceHwAddress) {
-					log.Print("--> Received ARP request")
+					//log.Print("--> Received ARP request")
 					var now = time.Now()
 					if now.Sub(lastPushed).Seconds() > 5 {
 						lastPushed = now
