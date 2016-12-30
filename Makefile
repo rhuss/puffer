@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # The binary to build (just the basename).
-BIN := puffer-audio
+BIN := puffer
 
 # This repo's root import path (under GOPATH).
-PKG := github.com/rhuss/puffer-audio
+PKG := github.com/rhuss/puffer
 
 # Where to push the docker image.
 REGISTRY ?= rhuss
@@ -24,9 +24,12 @@ REGISTRY ?= rhuss
 # Which architecture to build - see $(ALL_ARCH) for options.
 ARCH ?= amd64
 
+# For which operating system to build
+OS ?= linux
+
 # This version-strategy uses git tags to set the version string
 VERSION := $(shell git describe --tags --always --dirty)
-#
+
 # This version-strategy uses a manual value to set the version string
 #VERSION := 1.2.3
 
@@ -79,23 +82,25 @@ all-push: $(addprefix push-, $(ALL_ARCH))
 build: bin/$(ARCH)/$(BIN)
 
 bin/$(ARCH)/$(BIN): build-dirs
-	@echo "building: $@"
+	@echo "building: $@ for $(OS)/$(ARCH)"
 	@docker run                                                            \
-	    -ti                                                                \
+	    -t                                                                \
 	    -u $$(id -u):$$(id -g)                                             \
 	    -v $$(pwd)/.go:/go                                                 \
 	    -v $$(pwd):/go/src/$(PKG)                                          \
 	    -v $$(pwd)/bin/$(ARCH):/go/bin                                     \
-	    -v $$(pwd)/bin/$(ARCH):/go/bin/linux_$(ARCH)                       \
-	    -v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/linux_$(ARCH)_static  \
+		-v $$(pwd)/bin/$(ARCH):/go/bin/$(OS)_$(ARCH)                       \
+	    -v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/$(OS)_$(ARCH)_static  \
 	    -w /go/src/$(PKG)                                                  \
 	    $(BUILD_IMAGE)                                                     \
 	    /bin/sh -c "                                                       \
 	        ARCH=$(ARCH)                                                   \
 	        VERSION=$(VERSION)                                             \
 	        PKG=$(PKG)                                                     \
+			OS=$(OS)                                                       \
 	        ./build/build.sh                                               \
 	    "
+	@echo "done"
 
 DOTFILE_IMAGE = $(subst /,_,$(IMAGE))-$(VERSION)
 
@@ -130,7 +135,7 @@ test: build-dirs
 	    -v $$(pwd)/.go:/go                                                 \
 	    -v $$(pwd):/go/src/$(PKG)                                          \
 	    -v $$(pwd)/bin/$(ARCH):/go/bin                                     \
-	    -v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/linux_$(ARCH)_static  \
+		-v $$(pwd)/.go/std/$(ARCH):/usr/local/go/pkg/$(OS)_$(ARCH)_static  \
 	    -w /go/src/$(PKG)                                                  \
 	    $(BUILD_IMAGE)                                                     \
 	    /bin/sh -c "                                                       \
@@ -148,3 +153,8 @@ container-clean:
 
 bin-clean:
 	rm -rf .go bin
+
+bootstrap:
+	go get -u github.com/Masterminds/glide
+	glide update --strip-vendor --all-dependencies
+
