@@ -62,13 +62,13 @@ func FetchPufferData(options *Options) (*Info, error) {
 		key := result.Columns[i]
 		value := result.Points[0][i]
 		if key == "temp_coll" {
-			collector = float32(value / 10)
+			collector = float32(value) / 10.0
 		} else if key == "temp_high" {
-			high = float32(value / 10)
+			high = float32(value) / 10.0
 		} else if key == "temp_med" {
-			med = float32(value / 10)
+			med = float32(value) / 10.0
 		} else if key == "temp_low" {
-			low = float32(value / 10)
+			low = float32(value) / 10.0
 		}
 	}
 

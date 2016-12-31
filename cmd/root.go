@@ -83,11 +83,11 @@ func PufferOptions() *api.Options {
 func PufferMessage(info *api.Info) string {
 	var format string
 	if language == "de" {
-		format = "Puffertemperatur. Oben : %d Grad Celsius. Mitte : %d Grad Celsius. Unten : %d Grad Celsius"
+		format = "Puffertemperatur. Oben : %d Grad Celsius. Mitte : %d Grad Celsius. Unten : %d Grad Celsius. Kollektor : %d Grad Celsius"
 	} else {
-		format = "Heat storage temperature. Up: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees Celsius"
+		format = "Heat storage temperature. Up: %d degrees Celsius. Middle : %d degrees Celsius. Low: %d degrees Celsius. Collector : %d degrees Celsius"
 	}
-	return fmt.Sprintf(format, int(info.HighTemp+0.5), int(info.MidTemp+0.5), int(info.LowTemp+0.5))
+	return fmt.Sprintf(format, int(info.HighTemp+0.5), int(info.MidTemp+0.5), int(info.LowTemp+0.5), int(info.CollectorTemp + 0.5))
 }
 
 func init() {
