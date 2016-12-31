@@ -35,7 +35,10 @@ var speakCmd = &cobra.Command{
 }
 
 func run(cmd *cobra.Command, args []string) {
-	pufferData := api.FetchPufferData()
+	pufferData, err := api.FetchPufferData(PufferOptions())
+	if err != nil {
+		panic(err)
+	}
 	text := PufferMessage(pufferData)
 	speak.Speak(text, SpeakOptions())
 }

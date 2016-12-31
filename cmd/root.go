@@ -34,7 +34,7 @@ var RootCmd = &cobra.Command{
 	Use:   "puffer",
 	Short: "Managing data of a Sonnenkraft Puffer storage",
 	Long: `puffer: Managing data of a Sonnenkraft Puffer storage
-	
+
 It can be used to query the current temperatur of the puffer storage.
 	`,
 }
@@ -70,8 +70,17 @@ func SpeakOptions() *speak.Options {
 	}
 }
 
+func PufferOptions() *api.Options {
+	influxConfig := viper.GetStringMapString("influxdb")
+	return &api.Options{
+		Url: influxConfig["url"],
+		User: influxConfig["user"],
+		Password: influxConfig["password"],
+	}
+}
+
 // PufferMessage returns the message to speak, depending on the language
-func PufferMessage(info *api.PufferInfo) string {
+func PufferMessage(info *api.Info) string {
 	var format string
 	if language == "de" {
 		format = "Puffertemperatur. Oben : %d Grad Celsius. Mitte : %d Grad Celsius. Unten : %d Grad Celsius"

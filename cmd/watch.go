@@ -76,7 +76,10 @@ func watch(cmd *cobra.Command, args []string) {
 
 func buttonPushed() {
 	log.Printf("Button PUSHED !")
-	pufferData := api.FetchPufferData()
+	pufferData, err := api.FetchPufferData(PufferOptions())
+	if err != nil {
+		panic(err)
+	}
 	log.Printf("Puffer info fetched")
 	speak.Speak(PufferMessage(pufferData), SpeakOptions())
 }
