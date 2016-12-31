@@ -14,10 +14,11 @@ const QUERY_STRING = "select temp_high, temp_low, temp_med, temp_coll from puffe
 type column string
 type point int
 
+type points [][]point
 type QueryResult struct {
 	Name    string
 	Columns []column
-	Points  [][]point
+	Points  points
 }
 
 // FetchPufferData is for getting the latest puffer data
