@@ -130,6 +130,11 @@
 			"revisionTime": "2016-12-13T14:20:06Z"
 		},
 		{
+			"checksumSHA1": "KC0R9cNmgv0VeDvO7iZdITHaZmE=",
+			"path": "github.com/rhuss/dash",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "iGmLeUVcmiFgd4/iK2Tmx7WIoa4=",
 			"path": "github.com/spf13/afero",
 			"revision": "90dd71edc4d0a8b3511dc12ea15d617d03be09e0",

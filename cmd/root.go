@@ -79,13 +79,18 @@ func PufferOptions() *api.Options {
 	}
 }
 
+func ButtonMacAddress(what string) string {
+   buttonConfig := viper.GetStringMapString("buttons")
+   return buttonConfig[what]
+}
+
 // PufferMessage returns the message to speak, depending on the language
 func PufferMessage(info *api.Info) string {
 	var format string
 	if language == "de" {
-		format = "Puffertemperatur. Oben : %d Grad Celsius. Mitte : %d Grad Celsius. Unten : %d Grad Celsius. Kollektor : %d Grad Celsius"
+		format = "Puffertemperatur. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad."
 	} else {
-		format = "Heat storage temperature. Up: %d degrees Celsius. Middle : %d degrees Celsius. Low: %d degrees Celsius. Collector : %d degrees Celsius"
+		format = "Heat storage temperatures. Up: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius"
 	}
 	return fmt.Sprintf(format, int(info.HighTemp+0.5), int(info.MidTemp+0.5), int(info.LowTemp+0.5), int(info.CollectorTemp + 0.5))
 }

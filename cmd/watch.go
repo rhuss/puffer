@@ -15,23 +15,16 @@
 package cmd
 
 import (
-	"bytes"
 	"errors"
 	"log"
-	"time"
-
 	"net"
 
-	"github.com/google/gopacket"
-	"github.com/google/gopacket/layers"
-	"github.com/google/gopacket/pcap"
 	"github.com/rhuss/puffer/pkg/api"
 	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/rhuss/dash"
 )
-
-var buttonMac = "ac:63:be:fb:13:9d"
 
 // watchCmd represents the watch command
 var watchCmd = &cobra.Command{
@@ -60,69 +53,23 @@ func watch(cmd *cobra.Command, args []string) {
 	}
 
 	log.Printf("Using network range %v for interface %v", addr, iface.Name)
-
-	// Start up a goroutine to read in packet data.
-	for {
-		// Open up a pcap handle for packet reads/writes.
-		handle, err := pcap.OpenLive(iface.Name, 65536, true, 200 * time.Millisecond)
-		if err != nil {
-			panic(err)
+	pufferChan := dash.WatchButton(iface, ButtonMacAddress("puffer"))
+    for {
+		select {
+		case <- *pufferChan:
+			pufferButtonPushed()
 		}
-		watchForButton(handle, iface)
-		handle.Close()
-		buttonPushed()
 	}
 }
 
-func buttonPushed() {
-	log.Printf("Button PUSHED !")
+func pufferButtonPushed() {
+	log.Print("Button PUSHED !")
 	pufferData, err := api.FetchPufferData(PufferOptions())
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("Puffer info fetched")
+	log.Print("Puffer info fetched")
 	speak.Speak(PufferMessage(pufferData), SpeakOptions())
-}
-
-var lastPushed = time.Time{}
-
-// watchForButton watches a handle for incoming ARP responses we might care about, and prints them.
-//
-// watchForButton loops until 'stop' is closed.
-func watchForButton(handle *pcap.Handle, iface *net.Interface) {
-	src := gopacket.NewPacketSource(handle, layers.LayerTypeEthernet)
-	in := src.Packets()
-	for {
-		var packet gopacket.Packet
-		select {
-		case packet = <-in:
-			arpLayer := packet.Layer(layers.LayerTypeARP)
-			if arpLayer == nil {
-				continue
-			}
-			arp := arpLayer.(*layers.ARP)
-			if arp.Operation == layers.ARPRequest {
-				//log.Printf("ARP request")
-				//log.Printf("IP %v Dst %v Src %v", net.IP(arp.SourceProtAddress), net.HardwareAddr(arp.DstHwAddress), net.HardwareAddr(arp.SourceHwAddress))
-				if addressEquals("00:00:00:00:00:00", arp.DstHwAddress) && addressEquals(buttonMac, arp.SourceHwAddress) {
-					//log.Print("--> Received ARP request")
-					var now = time.Now()
-					if now.Sub(lastPushed).Seconds() > 5 {
-						lastPushed = now
-						return
-					}
-				}
-			}
-		}
-	}
-}
-
-func addressEquals(mac string, addr []byte) bool {
-	macParsed, error := net.ParseMAC(mac)
-	if error != nil {
-		return false
-	}
-	return bytes.Equal(macParsed, addr)
 }
 
 func extractAddress(iface *net.Interface) (*net.IPNet, error) {
@@ -135,7 +82,7 @@ func extractAddress(iface *net.Interface) (*net.IPNet, error) {
 				if ip4 := ipnet.IP.To4(); ip4 != nil {
 					addr = &net.IPNet{
 						IP:   ip4,
-						Mask: ipnet.Mask[len(ipnet.Mask)-4:],
+						Mask: ipnet.Mask[len(ipnet.Mask) - 4:],
 					}
 					break
 				}

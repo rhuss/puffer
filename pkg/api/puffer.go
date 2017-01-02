@@ -12,13 +12,13 @@ import (
 const QUERY_STRING = "select temp_high, temp_low, temp_med, temp_coll from puffer where time > now() - 1h order desc limit 1"
 
 type column string
-type point uint64
+type point int64
 
 type points [][]point
 type QueryResult struct {
 	Name    string
-	Columns []column
-	Points  points
+	Columns []string
+	Points  [][]int64
 }
 
 // FetchPufferData is for getting the latest puffer data
