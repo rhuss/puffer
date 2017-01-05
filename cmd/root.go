@@ -39,6 +39,37 @@ It can be used to query the current temperatur of the puffer storage.
 	`,
 }
 
+var Texts = map[string]map[string]string{
+	"puffer": {
+		"de": "Puffer. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad.",
+		"en": "Heat storage. High: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius",
+	},
+	"cal-none" : {
+		"de": "Heute keine Termine.",
+		"en": "No events today",
+	},
+	"cal-timed-event" : {
+		"de": "%s - %d Uhr : %s",
+		"en": "%s - %d o'clock : %s",
+	},
+	"cal-timed-event-with-minute" : {
+		"de": "%s - %d Uhr %d : %s",
+		"en": "%s - %d %d : %s",
+	},
+	"cal-tomorrow" : {
+		"de": "Termine morgen :",
+		"en": "Events tomorrow :",
+	},
+	"cal-reminder-tomorrow" : {
+		"de": "Erinnerung für morgen :",
+		"en": "Reminder for tomorrow :",
+	},
+	"cal-event-no-time": {
+		"de": "%s - %s",
+		"en": "%s - %s",
+	},
+}
+
 // Execute adds all child commands to the root command sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -73,26 +104,15 @@ func SpeakOptions() *speak.Options {
 func PufferOptions() *puffer.Options {
 	influxConfig := viper.GetStringMapString("influxdb")
 	return &puffer.Options{
-		Url: influxConfig["url"],
-		User: influxConfig["user"],
+		Url:      influxConfig["url"],
+		User:     influxConfig["user"],
 		Password: influxConfig["password"],
 	}
 }
 
 func ButtonMacAddress(what string) string {
-   buttonConfig := viper.GetStringMapString("buttons")
-   return buttonConfig[what]
-}
-
-// PufferMessage returns the message to speak, depending on the language
-func PufferMessage(info *puffer.Info) string {
-	var format string
-	if language == "de" {
-		format = "Puffer. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad."
-	} else {
-		format = "Heat storage. High: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius"
-	}
-	return fmt.Sprintf(format, int(info.HighTemp+0.5), int(info.MidTemp+0.5), int(info.LowTemp+0.5), int(info.CollectorTemp + 0.5))
+	buttonConfig := viper.GetStringMapString("buttons")
+	return buttonConfig[what]
 }
 
 func init() {
@@ -116,9 +136,9 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	}
 
-	viper.SetConfigName("config") // name of config file (without extension)
-	viper.AddConfigPath("$HOME/.puffer")   // adding home directory as first search path
-	viper.AutomaticEnv()           // read in environment variables that match
+	viper.SetConfigName("config")        // name of config file (without extension)
+	viper.AddConfigPath("$HOME/.puffer") // adding home directory as first search path
+	viper.AutomaticEnv()                 // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

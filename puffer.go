@@ -19,3 +19,4 @@ import "github.com/rhuss/puffer/cmd"
 func main() {
 	cmd.Execute()
 }
+

@@ -15,8 +15,6 @@
 package cmd
 
 import (
-	"github.com/rhuss/puffer/pkg/puffer"
-	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
 )
 
@@ -31,16 +29,9 @@ var speakCmd = &cobra.Command{
 	- afplay for OSX
 	- mpg123 for Linux
 	`,
-	Run: run,
-}
-
-func run(cmd *cobra.Command, args []string) {
-	pufferData, err := puffer.FetchPufferData(PufferOptions())
-	if err != nil {
-		panic(err)
-	}
-	text := PufferMessage(pufferData)
-	speak.Speak(text, SpeakOptions())
+	Run: func(cmd *cobra.Command, args []string) {
+		PufferButtonPushed()
+	},
 }
 
 func init() {

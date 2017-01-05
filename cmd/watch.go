@@ -65,13 +65,13 @@ func watch(cmd *cobra.Command, args []string) {
     for {
 		select {
 		case <- *pufferChan:
-			pufferButtonPushed()
+			PufferButtonPushed()
 		case <- *calendarChan:
-			calendarButtonPushed()
+			CalendarButtonPushed()
 		}
 	}
 }
-func calendarButtonPushed() {
+func CalendarButtonPushed() {
 	log.Print("Calendar Button pushed")
 
 	jsonKey, err := ioutil.ReadFile(filepath.Join(os.Getenv("HOME"), ".puffer", "google-client-secret.json"))
@@ -95,24 +95,41 @@ func calendarButtonPushed() {
 		fmt.Printf("Cannot fetch events: %v", err)
 		return
 	}
+
 	if events.TodayEvents != nil {
-		fmt.Println("Today")
 		for _, event := range *events.TodayEvents {
-			fmt.Printf("%s -- [%s,%s] : %s\n", event.Calendar, event.Start, event.End, event.Summary)
+			speak.Speak(getEventMessage(event), SpeakOptions())
+		}
+	} else {
+		speak.Speak(Texts["cal-none"][language], SpeakOptions())
+
+		if events.TomorrowEvents != nil {
+			speak.Speak(Texts["cal-tomorrow"][language], SpeakOptions())
+			for _, event := range *events.TomorrowEvents {
+				speak.Speak(getEventMessage(event), SpeakOptions())
+			}
 		}
 	}
-	if events.TomorrowEvents != nil {
-		fmt.Println("Tomorrow")
-		for _, event := range *events.TomorrowEvents {
-			fmt.Printf("%s -- [%s,%s] : %s\n", event.Calendar, event.Start, event.End, event.Summary)
-		}
-	}
+
 	if events.TomorrowAllDayEvents != nil {
-		fmt.Println("All Day Events")
+		speak.Speak(Texts["cal-reminder-tomorrow"][language], SpeakOptions())
 		for _, event := range *events.TomorrowAllDayEvents {
-			fmt.Printf("%s -- %s\n", event.Calendar, event.Summary)
+			msg := fmt.Sprintf(Texts["cal-event-no-time"][language], event.Calendar, event.Summary)
+			speak.Speak(msg, SpeakOptions())
 		}
 	}
+}
+func getEventMessage(event calendar.TimedEvent) string {
+	var text string
+	min := event.Start.Minute()
+	if min == 0 {
+		text = fmt.Sprintf(Texts["cal-timed-event"][language],
+			event.Calendar, event.Start.Hour(), event.Summary)
+	} else {
+		text = fmt.Sprintf(Texts["cal-timed-event-with-minute"][language],
+			event.Calendar, event.Start.Hour(), min, event.Summary)
+	}
+	return text
 }
 
 
@@ -142,7 +159,7 @@ func saveToken(file string, token *oauth2.Token) {
 }
 
 
-func pufferButtonPushed() {
+func PufferButtonPushed() {
 	log.Print("Puffer Button pushed")
 	pufferData, err := puffer.FetchPufferData(PufferOptions())
 	if err != nil {
@@ -150,7 +167,12 @@ func pufferButtonPushed() {
 		return
 	}
 	log.Print("Puffer info fetched")
-	speak.Speak(PufferMessage(pufferData), SpeakOptions())
+
+	var format = Texts["puffer"][language]
+	msg := fmt.Sprintf(format,
+		int(pufferData.HighTemp + 0.5), int(pufferData.MidTemp + 0.5),
+		int(pufferData.LowTemp + 0.5), int(pufferData.CollectorTemp + 0.5))
+	speak.Speak(msg, SpeakOptions())
 }
 
 func extractAddress(iface *net.Interface) (*net.IPNet, error) {

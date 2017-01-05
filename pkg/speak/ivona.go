@@ -14,9 +14,9 @@ import (
 
 // Speak converts a text to audio and the send it out via audio
 func Speak(text string, options *Options) error {
+	log.Printf(">>> %s",text)
 	client := ivona.New(options.Access, options.Secret)
 	r, err := client.CreateSpeech(speechOptions(text, options.Language, options.Gender))
-	log.Printf("Received answer: %v", r.ContentType)
 	if err != nil {
 		log.Fatal(err)
 	}
