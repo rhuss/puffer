@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/rhuss/puffer/pkg/api"
+	"github.com/rhuss/puffer/pkg/puffer"
 	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -70,9 +70,9 @@ func SpeakOptions() *speak.Options {
 	}
 }
 
-func PufferOptions() *api.Options {
+func PufferOptions() *puffer.Options {
 	influxConfig := viper.GetStringMapString("influxdb")
-	return &api.Options{
+	return &puffer.Options{
 		Url: influxConfig["url"],
 		User: influxConfig["user"],
 		Password: influxConfig["password"],
@@ -85,12 +85,12 @@ func ButtonMacAddress(what string) string {
 }
 
 // PufferMessage returns the message to speak, depending on the language
-func PufferMessage(info *api.Info) string {
+func PufferMessage(info *puffer.Info) string {
 	var format string
 	if language == "de" {
-		format = "Puffertemperatur. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad."
+		format = "Puffer. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad."
 	} else {
-		format = "Heat storage temperatures. Up: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius"
+		format = "Heat storage. High: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius"
 	}
 	return fmt.Sprintf(format, int(info.HighTemp+0.5), int(info.MidTemp+0.5), int(info.LowTemp+0.5), int(info.CollectorTemp + 0.5))
 }
@@ -116,8 +116,8 @@ func initConfig() {
 		viper.SetConfigFile(cfgFile)
 	}
 
-	viper.SetConfigName(".puffer") // name of config file (without extension)
-	viper.AddConfigPath("$HOME")   // adding home directory as first search path
+	viper.SetConfigName("config") // name of config file (without extension)
+	viper.AddConfigPath("$HOME/.puffer")   // adding home directory as first search path
 	viper.AutomaticEnv()           // read in environment variables that match
 
 	// If a config file is found, read it in.

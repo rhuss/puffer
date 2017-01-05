@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/rhuss/puffer/pkg/api"
+	"github.com/rhuss/puffer/pkg/puffer"
 	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +35,7 @@ var speakCmd = &cobra.Command{
 }
 
 func run(cmd *cobra.Command, args []string) {
-	pufferData, err := api.FetchPufferData(PufferOptions())
+	pufferData, err := puffer.FetchPufferData(PufferOptions())
 	if err != nil {
 		panic(err)
 	}
