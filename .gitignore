@@ -2,6 +2,6 @@
 /.push-*
 /.container-*
 /.dockerfile-*
-puffer
+/puffer
 projectFilesBackup
 *.iml
