@@ -39,7 +39,7 @@ func FetchToken(jsonKey []byte) (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	tok, err := config.Exchange(oauth2.NoContext, code)
+	tok, err := config.Exchange(context.TODO(), code)
 	if err != nil {
 		return nil, err
 	}
@@ -68,6 +68,7 @@ func GetNextEvents(oauthToken *oauth2.Token, jsonKey []byte, todayCalendarNames 
 	log.Printf("Calendars: %v", calendars)
 
 	start, midnight, end := getTimeWindow()
+	log.Printf("Start: %v Midnight: %v End: %v",start.Format(time.RFC3339), midnight, end)
 
 	todayEvents, err := extractEventsForCalendars(srv, calendars, start, midnight)
 	if err != nil {
@@ -75,6 +76,7 @@ func GetNextEvents(oauthToken *oauth2.Token, jsonKey []byte, todayCalendarNames 
 	}
 	var tomorrowEvents *[]TimedEvent
 	if len(*todayEvents) == 0 {
+		todayEvents = nil
 		tomorrowEvents, err = extractEventsForCalendars(srv, calendars, start, end)
 		if err != nil {
 			return nil, err
@@ -209,7 +211,7 @@ func parseRfc339(rfc3339 string) (*time.Time, error) {
 
 // Get the time window for which to fetch events
 func getTimeWindow() (time.Time, time.Time, time.Time) {
-	start := time.Now().Add(-2 * time.Hour)
+	start := time.Now()
 	year, month, day := start.Date()
 	lastMidnight := time.Date(year, month, day, 0, 0, 0, 0, start.Location())
 	midnight := lastMidnight.Add(time.Hour * 24)

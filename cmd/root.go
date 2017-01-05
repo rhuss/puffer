@@ -65,8 +65,8 @@ var Texts = map[string]map[string]string{
 		"en": "Reminder for tomorrow :",
 	},
 	"cal-event-no-time": {
-		"de": "%s - %s",
-		"en": "%s - %s",
+		"de": "%s.",
+		"en": "%s.",
 	},
 }
 

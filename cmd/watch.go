@@ -98,24 +98,42 @@ func CalendarButtonPushed() {
 
 	if events.TodayEvents != nil {
 		for _, event := range *events.TodayEvents {
-			speak.Speak(getEventMessage(event), SpeakOptions())
+			if err := speak.Speak(getEventMessage(event), SpeakOptions()); err != nil {
+				fmt.Printf("Cannot speak %v : %v", getEventMessage(event), err)
+				return
+			}
 		}
 	} else {
-		speak.Speak(Texts["cal-none"][language], SpeakOptions())
+		if err := speak.Speak(Texts["cal-none"][language], SpeakOptions()); err != nil {
+			fmt.Printf("Cannot speak cal-none: %v",err)
+			return
+		}
 
 		if events.TomorrowEvents != nil {
-			speak.Speak(Texts["cal-tomorrow"][language], SpeakOptions())
+			if err := speak.Speak(Texts["cal-tomorrow"][language], SpeakOptions()); err != nil {
+				fmt.Printf("Cannot speak cal-tomorrow: %v", err)
+				return
+			}
 			for _, event := range *events.TomorrowEvents {
-				speak.Speak(getEventMessage(event), SpeakOptions())
+				if err := speak.Speak(getEventMessage(event), SpeakOptions()); err != nil {
+					fmt.Printf("Cannot speak %v : %v", getEventMessage(event), err)
+					return
+				}
 			}
 		}
 	}
 
 	if events.TomorrowAllDayEvents != nil {
-		speak.Speak(Texts["cal-reminder-tomorrow"][language], SpeakOptions())
+		if err := speak.Speak(Texts["cal-reminder-tomorrow"][language], SpeakOptions()); err != nil {
+			fmt.Printf("Cannot speak cal-reminder-tomorrow: %v",err)
+			return
+		}
 		for _, event := range *events.TomorrowAllDayEvents {
-			msg := fmt.Sprintf(Texts["cal-event-no-time"][language], event.Calendar, event.Summary)
-			speak.Speak(msg, SpeakOptions())
+			msg := fmt.Sprintf(Texts["cal-event-no-time"][language], event.Summary)
+			if err:= speak.Speak(msg, SpeakOptions()); err != nil {
+				fmt.Printf("Cannot speak cal-event-no-time: %v", err)
+				return
+			}
 		}
 	}
 }
