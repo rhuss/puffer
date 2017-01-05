@@ -237,8 +237,20 @@
 			"revisionTime": "2017-01-02T20:58:43Z"
 		},
 		{
+			"checksumSHA1": "GIGmSrYACByf5JDIP9ByBZksY80=",
+			"path": "golang.org/x/net/idna",
+			"revision": "69d4b8aa71caaaa75c3dfc11211d1be495abec7c",
+			"revisionTime": "2017-01-02T20:58:43Z"
+		},
+		{
 			"checksumSHA1": "/k7k6eJDkxXx6K9Zpo/OwNm58XM=",
 			"path": "golang.org/x/net/internal/timeseries",
+			"revision": "69d4b8aa71caaaa75c3dfc11211d1be495abec7c",
+			"revisionTime": "2017-01-02T20:58:43Z"
+		},
+		{
+			"checksumSHA1": "3xyuaSNmClqG4YWC7g0isQIbUTc=",
+			"path": "golang.org/x/net/lex/httplex",
 			"revision": "69d4b8aa71caaaa75c3dfc11211d1be495abec7c",
 			"revisionTime": "2017-01-02T20:58:43Z"
 		},
