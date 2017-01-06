@@ -81,6 +81,9 @@ func GetNextEvents(oauthToken *oauth2.Token, jsonKey []byte, todayCalendarNames 
 		if err != nil {
 			return nil, err
 		}
+		if len(*tomorrowEvents) == 0 {
+			tomorrowEvents = nil
+		}
 	}
 
 	allDayCalendars, err := getCalendarIds(srv, allDayCalendarNames)
