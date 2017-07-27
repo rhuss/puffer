@@ -28,6 +28,7 @@ import (
 var cfgFile string
 var gender string
 var language string
+var backend string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -35,7 +36,7 @@ var RootCmd = &cobra.Command{
 	Short: "Managing data of a Sonnenkraft Puffer storage",
 	Long: `puffer: Managing data of a Sonnenkraft Puffer storage
 
-It can be used to query the current temperatur of the puffer storage.
+It can be used to query the current temperature of the puffer storage.
 	`,
 }
 
@@ -81,7 +82,7 @@ func Execute() {
 
 // SpeakOptions create the options for the text to speech service
 func SpeakOptions() *speak.Options {
-	ivonaConfig := viper.GetStringMapString("ivona")
+	ivonaConfig := viper.GetStringMapString("backend")
 	if ivonaConfig == nil {
 		log.Fatal("No authentication for ivona configured")
 	}
@@ -98,6 +99,7 @@ func SpeakOptions() *speak.Options {
 		Secret:   secret,
 		Gender:   gender,
 		Language: language,
+		Backend:  backend,
 	}
 }
 
@@ -125,6 +127,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.puffer.yaml)")
 	RootCmd.PersistentFlags().StringVarP(&gender, "gender", "g", "female", "Gender of voice to use (male or female)")
 	RootCmd.PersistentFlags().StringVarP(&language, "language", "l", "de", "Language to use ('de' or 'en')")
+	RootCmd.PersistentFlags().StringVarP(&backend, "backend", "b", "polly", "Service type ('ivona' or 'polly')")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
@@ -138,7 +141,7 @@ func initConfig() {
 
 	viper.SetConfigName("config")        // name of config file (without extension)
 	viper.AddConfigPath("$HOME/.puffer") // adding home directory as first search path
-	viper.AutomaticEnv()                 // read in environment variables that match
+	viper.AutomaticEnv()                    // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

@@ -6,6 +6,8 @@ VERSION := $(shell git describe --tags --always --dirty)
 
 all: build
 
+.PHONY: build
+
 build: $(BIN)
 	go build -o $(BIN) puffer.go
 

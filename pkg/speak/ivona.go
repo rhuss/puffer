@@ -5,23 +5,19 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
-
-	"runtime"
-
-	ivona "github.com/jpadilla/ivona-go"
+	"github.com/jpadilla/ivona-go"
 )
 
 // Speak converts a text to audio and the send it out via audio
-func Speak(text string, options *Options) error {
-	log.Printf(">>> %s",text)
+func IvonaSpeak(text string, options *Options) error {
+	log.Printf(">>> Ivona: %s",text)
 	client := ivona.New(options.Access, options.Secret)
 	r, err := client.CreateSpeech(speechOptions(text, options.Language, options.Gender))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	mp3, err := ioutil.TempFile("/tmp", "ivona")
+	mp3, err := ioutil.TempFile("/tmp", "speak")
 	if err != nil {
 		return err
 	}
@@ -41,12 +37,6 @@ func Speak(text string, options *Options) error {
 	return nil
 }
 
-func getPlayCommand(mp3 string) *exec.Cmd {
-	if runtime.GOOS == "darwin" {
-		return exec.Command("afplay", mp3)
-	}
-	return exec.Command("mpg123", mp3)
-}
 
 func speechOptions(text string, language string, gender string) ivona.SpeechOptions {
 	voice, err := createVoice(language, gender)
