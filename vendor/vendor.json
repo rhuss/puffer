@@ -82,6 +82,12 @@
 			"revisionTime": "2016-11-16T19:01:28Z"
 		},
 		{
+			"checksumSHA1": "iIUYZyoanCQQTUaWsu8b+iOSPt4=",
+			"path": "github.com/gorilla/context",
+			"revision": "215affda49addc4c8ef7e2534915df2c8c35c6cd",
+			"revisionTime": "2014-12-17T16:02:51Z"
+		},
+		{
 			"checksumSHA1": "l18VMybqvbowqoAmPFZOhObzpaE=",
 			"path": "github.com/gorilla/mux",
 			"revision": "8096f47503459bcc74d1f4c487b7e6e42e5746b5",
