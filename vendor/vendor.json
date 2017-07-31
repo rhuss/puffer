@@ -34,6 +34,12 @@
 			"revisionTime": "2015-08-04T16:33:18Z"
 		},
 		{
+			"checksumSHA1": "OYqScp8sv9OpF8+L4GehmwTe75c=",
+			"path": "github.com/codegangsta/negroni",
+			"revision": "b52430c192a156df9ce64f249ccb551f0ff3467f",
+			"revisionTime": "2017-07-11T19:42:05Z"
+		},
+		{
 			"checksumSHA1": "hveFTNQ9YEyYRs6SWuXM+XU9qRI=",
 			"path": "github.com/fsnotify/fsnotify",
 			"revision": "fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197",
