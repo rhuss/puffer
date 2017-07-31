@@ -19,7 +19,6 @@ import (
 	"log"
 	"net"
 
-	"github.com/rhuss/puffer/pkg/puffer"
 	"github.com/rhuss/puffer/pkg/speak"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -179,17 +178,10 @@ func saveToken(file string, token *oauth2.Token) {
 
 func PufferButtonPushed() {
 	log.Print("Puffer Button pushed")
-	pufferData, err := puffer.FetchPufferData(PufferOptions())
+	msg, err := getPufferSummaryMessage()
 	if err != nil {
-		fmt.Print(err)
-		return
+		log.Fatal(err)
 	}
-	log.Print("Puffer info fetched")
-
-	var format = Texts["puffer"][language]
-	msg := fmt.Sprintf(format,
-		int(pufferData.HighTemp + 0.5), int(pufferData.MidTemp + 0.5),
-		int(pufferData.LowTemp + 0.5), int(pufferData.CollectorTemp + 0.5))
 	speak.Speak(msg, SpeakOptions())
 }
 

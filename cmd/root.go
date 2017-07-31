@@ -84,15 +84,15 @@ func Execute() {
 func SpeakOptions() *speak.Options {
 	ivonaConfig := viper.GetStringMapString("backend")
 	if ivonaConfig == nil {
-		log.Fatal("No authentication for ivona configured")
+		log.Fatal("No authentication for speech backend configured")
 	}
 	access, found := ivonaConfig["access"]
 	if !found {
-		log.Fatal("No access for ivona found")
+		log.Fatal("No access for speech backend found")
 	}
 	secret, found := ivonaConfig["secret"]
 	if !found {
-		log.Fatal("No secret given for accessing ivona")
+		log.Fatal("No secret given for accessing speech backend")
 	}
 	return &speak.Options{
 		Access:   access,
@@ -148,3 +148,19 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
+
+func getPufferSummaryMessage() (string, error) {
+	pufferData, err := puffer.FetchPufferData(PufferOptions())
+	if err != nil {
+		fmt.Print(err)
+		return "", err
+	}
+	log.Print("Puffer info fetched")
+
+	var format= Texts["puffer"][language]
+	msg := fmt.Sprintf(format,
+		int(pufferData.HighTemp+0.5), int(pufferData.MidTemp+0.5),
+		int(pufferData.LowTemp+0.5), int(pufferData.CollectorTemp+0.5))
+	return msg, nil
+}
+
