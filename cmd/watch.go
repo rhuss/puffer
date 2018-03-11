@@ -73,13 +73,13 @@ func watch(cmd *cobra.Command, args []string) {
 func CalendarButtonPushed() {
 	log.Print("Calendar Button pushed")
 
-	jsonKey, err := ioutil.ReadFile(filepath.Join(os.Getenv("HOME"), ".puffer", "google-client-secret.json"))
+	jsonKey, err := ioutil.ReadFile(filepath.Join(viper.GetString("configdir"), "google-client-secret.json"))
 	if err != nil {
 		fmt.Printf("Unable to read client secret file: %v", err)
 		return
 	}
 
-	tokenCache := filepath.Join(os.Getenv("HOME"), ".puffer", "calendar-token.json")
+	tokenCache := filepath.Join(viper.GetString("configdir"), "calendar-token.json")
 	token, err := tokenFromFile(tokenCache)
 	if err != nil {
 		token, err = calendar.FetchToken(jsonKey)

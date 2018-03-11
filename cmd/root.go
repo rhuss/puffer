@@ -26,6 +26,7 @@ import (
 )
 
 var cfgFile string
+var cfgDir string
 var gender string
 var language string
 var backend string
@@ -45,23 +46,23 @@ var Texts = map[string]map[string]string{
 		"de": "Puffer. Oben : %d Grad. Mitte : %d Grad. Unten : %d Grad. Kollektor : %d Grad.",
 		"en": "Heat storage. High: %d degrees celsius. Middle : %d degrees celsius. Low: %d degrees celsius. Collector : %d degrees celsius",
 	},
-	"cal-none" : {
+	"cal-none": {
 		"de": "Heute keine Termine.",
 		"en": "No events today",
 	},
-	"cal-timed-event" : {
+	"cal-timed-event": {
 		"de": "%s - %d Uhr : %s",
 		"en": "%s - %d o'clock : %s",
 	},
-	"cal-timed-event-with-minute" : {
+	"cal-timed-event-with-minute": {
 		"de": "%s - %d Uhr %d : %s",
 		"en": "%s - %d %d : %s",
 	},
-	"cal-tomorrow" : {
+	"cal-tomorrow": {
 		"de": "Termine morgen :",
 		"en": "Events tomorrow :",
 	},
-	"cal-reminder-tomorrow" : {
+	"cal-reminder-tomorrow": {
 		"de": "Erinnerung für morgen :",
 		"en": "Reminder for tomorrow :",
 	},
@@ -124,7 +125,8 @@ func init() {
 	// Cobra supports Persistent Flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.puffer.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file config.yaml in configdir)")
+	RootCmd.PersistentFlags().StringVar(&cfgDir, "configdir", "", "directory holding configuration. Default: $HOME/.puffer")
 	RootCmd.PersistentFlags().StringVarP(&gender, "gender", "g", "female", "Gender of voice to use (male or female)")
 	RootCmd.PersistentFlags().StringVarP(&language, "language", "l", "de", "Language to use ('de' or 'en')")
 	RootCmd.PersistentFlags().StringVarP(&backend, "backend", "b", "polly", "Service type ('ivona' or 'polly')")
@@ -135,18 +137,25 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" { // enable ability to specify config file via flag
+	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.SetConfigName("config")
+	}
+	if cfgDir != "" {
+		viper.AddConfigPath(cfgDir)
+		viper.Set("configdir", cfgDir)
+	} else {
+		viper.AddConfigPath("$HOME/.puffer")
+	}
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("cannot read config file (configdir: %s), (config: %s)", cfgDir, cfgFile)
 	}
 
-	viper.SetConfigName("config")        // name of config file (without extension)
-	viper.AddConfigPath("$HOME/.puffer") // adding home directory as first search path
-	viper.AutomaticEnv()                    // read in environment variables that match
+	log.Println("Using config file:", viper.ConfigFileUsed(), "--- config dir:",viper.GetString("configdir"))
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
 }
 
 func getPufferSummaryMessage() (string, error) {
@@ -157,10 +166,9 @@ func getPufferSummaryMessage() (string, error) {
 	}
 	log.Print("Puffer info fetched")
 
-	var format= Texts["puffer"][language]
+	var format = Texts["puffer"][language]
 	msg := fmt.Sprintf(format,
 		int(pufferData.HighTemp+0.5), int(pufferData.MidTemp+0.5),
 		int(pufferData.LowTemp+0.5), int(pufferData.CollectorTemp+0.5))
 	return msg, nil
 }
-

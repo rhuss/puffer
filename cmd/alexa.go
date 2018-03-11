@@ -19,7 +19,6 @@ import (
 	"github.com/spf13/viper"
 	alexa "github.com/mikeflynn/go-alexa/skillserver"
 	"path/filepath"
-	"os"
 	"log"
 )
 
@@ -40,8 +39,8 @@ func alexaRun(cmd *cobra.Command, args []string) {
 	if !found {
 		port = "8443"
 	}
-	certPath := filepath.Join(os.Getenv("HOME"), ".puffer", "server.crt")
-	keyPath := filepath.Join(os.Getenv("HOME"), ".puffer", "server.key")
+	certPath := filepath.Join(viper.GetString("configdir"), "server.crt")
+	keyPath := filepath.Join(viper.GetString("configdir"), "server.key")
 
 
 	var applications = map[string]interface{}{
